@@ -10,41 +10,41 @@ st.markdown("---")
 
 # --- Column Name Mappings for User-Friendly Display ---
 MEMBER_COL_MAP = {
-    'MemberID': 'Member ID',
+    'memberid': 'Member ID',
     'member_fname': 'First Name',
-    'Member_LName': 'Last Name',
-    'Signup_Date': 'Signup Date',
-    'Address': 'Address',
-    'Mobile': 'Mobile Number',
-    'Email': 'Email Address',
-    'Social_Media': 'Social Media',
-    'Preference': 'Communication Preference',
-    'Member_Status': 'Status'
+    'member_lname': 'Last Name',
+    'signup_date': 'Signup Date',
+    'address': 'Address',
+    'mobile': 'Mobile Number',
+    'email': 'Email Address',
+    'social_media': 'Social Media',
+    'preference': 'Communication Preference',
+    'member_status': 'Status'
 }
 
 BOOK_COL_MAP = {
-    'ISBN': 'ISBN',
-    'Title': 'Title',
-    'Author_FName': 'Author First Name',
-    'Author_LName': 'Author Last Name',
-    'Publisher': 'Publisher',
-    'Publication_Year': 'Publication Year',
-    'Genre': 'Genre'
+    'isbn': 'ISBN',
+    'title': 'Title',
+    'author_fname': 'Author First Name',
+    'author_lname': 'Author Last Name',
+    'publisher': 'Publisher',
+    'publication_year': 'Publication Year',
+    'genre': 'Genre'
 }
 
 # EXPANDED LOAN_COL_MAP to include joined table columns
 LOAN_COL_MAP = {
-    'LoanID': 'Loan ID',
-    'MemberID': 'Member ID', # From Loans table
-    'ISBN': 'ISBN',           # From Loans table
-    'Borrow_date': 'Borrow Date',
-    'Return_date': 'Return Date',
-    'Member_FName': 'Member First Name', # From Members table (joined)
-    'Member_LName': 'Member Last Name',  # From Members table (joined)
-    'Email': 'Member Email',             # From Members table (joined)
-    'Title': 'Book Title',           # From Books table (joined)
-    'Author_FName': 'Book Author First Name', # From Books table (joined)
-    'Author_LName': 'Book Author Last Name'   # From Books table (joined)
+    'loanid': 'Loan ID',
+    'memberid': 'Member ID', # From Loans table
+    'isbn': 'ISBN',           # From Loans table
+    'borrow_date': 'Borrow Date',
+    'return_date': 'Return Date',
+    'member_fname': 'Member First Name', # From Members table (joined)
+    'member_lname': 'Member Last Name',  # From Members table (joined)
+    'email': 'Member Email',             # From Members table (joined)
+    'title': 'Book Title',           # From Books table (joined)
+    'author_fname': 'Book Author First Name', # From Books table (joined)
+    'author_lname': 'Book Author Last Name'   # From Books table (joined)
 }
 
 # --- Function to display a dataframe with interactive controls ---
