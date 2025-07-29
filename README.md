@@ -1,7 +1,8 @@
 # 📚 Liana's Library Management System
 
 A **Streamlit web application** for managing a small library's operations including members, books, and loans. Provides a user-friendly interface for CRUD operations, searching, and bulk data management.
-[Neon.tech](https://small-library-liana.streamlit.app/)
+
+[Library Link](https://small-library-liana.streamlit.app/)
 ---
 
 ## ✨ Features
