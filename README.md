@@ -1,6 +1,3 @@
-Sure! Below is a cleaned-up and properly formatted version of your `README.md` file, ready to be added to your GitHub repository. This version uses proper Markdown syntax, consistent formatting, and ensures code blocks are properly fenced.
-
-```markdown
 # 📚 Liana's Library Management System
 
 A **Streamlit web application** for managing a small library's operations including members, books, and loans. Provides a user-friendly interface for CRUD operations, searching, and bulk data management.
@@ -62,7 +59,6 @@ Passwords are hashed using `bcrypt` before storage.
 ```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
-```
 
 ### 2. Create a Virtual Environment
 
