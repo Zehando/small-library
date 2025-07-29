@@ -98,7 +98,7 @@ psycopg2-binary
 #### b. Import Initial SQL Dump
 - Use [DBeaver](https://dbeaver.io/) or similar tool
 - Connect with your Neon connection string
-- Run the SQL dump to populate tables
+- Run the SQL dump and data in the SQL scripts folder to populate database and tables
 
 #### c. Update Sequences
 Run the following SQL commands to avoid ID conflicts:
@@ -171,6 +171,9 @@ streamlit run st_app.py
 ├── sql_crud_functions.py    # Create, Update, Delete logic
 ├── sql_read_functions.py    # Read/query functions
 ├── requirements.txt         # Dependencies
+└── SQL scripts/
+    └── liana_library_data.sql         # Configured scripts for PostgreSQL (data)
+    └── liana_library_dump.sql         # Configured scripts for PostgreSQL (schema)
 └── .streamlit/
     └── secrets.toml         # Secrets (e.g., DATABASE_URL)
 ```
