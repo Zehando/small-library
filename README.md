@@ -185,15 +185,9 @@ streamlit run st_app.py
 
 ---
 
-## 🤝 Contributing
-
-Feel free to fork, create issues, or submit pull requests. Contributions are welcome!
-
----
-
 ## 📄 License
 
-[MIT License](LICENSE) *(Optional: replace with your license of choice)*
+[MIT License](LICENSE) 
 
 ---
 
@@ -201,6 +195,12 @@ Feel free to fork, create issues, or submit pull requests. Contributions are wel
 
 Thanks to [Neon.tech](https://neon.tech) for free PostgreSQL hosting and the Streamlit community for awesome tools!
 
-```
+---
 
-Let me know if you want a `LICENSE` file, `CONTRIBUTING.md`, or a sample `.streamlit/secrets.toml` template added.
+## 🤝 Contact
+
+For any questions or feedback, feel free to reach out:
+
+* **GitHub:** [@zehando](https://github.com/zehando)
+* **LinkedIn:** [Sahand Azizi](https://www.linkedin.com/in/sahandazizi/)
+* **Email:** azizisahand@gmail.com
