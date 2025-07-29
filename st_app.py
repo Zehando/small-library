@@ -280,7 +280,7 @@ else:
 
     # Define your navigation pages (only visible after login)
     overview_page1 = st.Page("p1_overview.py", title="Library Overview", icon=":material/dashboard:")
-    datainput_page2 = st.Page("p2_datainput.py", title="Data Input", icon=":material/add_circle:")
+    datainput_page2 = st.Page("p2_datainput.py", title="Library Management", icon=":material/add_circle:")
 
     pg = st.navigation([overview_page1, datainput_page2])
     pg.run() # pg.run() is called here after login
