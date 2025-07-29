@@ -398,4 +398,110 @@ with tab_loans:
             display_text = f"{row['member_fname']} {row['member_lname']} - '{row['title']}' (Loan ID: {row['loanid']}, Borrowed: {row['borrow_date'].strftime('%Y-%m-%d') if pd.notna(row['borrow_date']) else 'N/A'})"
             loan_options[display_text] = row['loanid']
         
-        with st.form
+        with st.form("update_loan_form", clear_on_submit=False):
+            # Dropdown to select loan
+            selected_loan_display = st.selectbox(
+                "Select Active Loan to Update:",
+                list(loan_options.keys()),
+                key="loan_update_select"
+            )
+            
+            # Get selected loan ID
+            selected_loan_id = loan_options[selected_loan_display]
+            
+            # Automatically retrieve loan data for selected loan
+            if selected_loan_id:
+                loan_df = get_loan_by_id(selected_loan_id)
+                if not loan_df.empty:
+                    st.session_state.loan_update_data = loan_df.iloc[0].to_dict()
+                    loan_data = st.session_state.loan_update_data
+                    
+                    # Display loan information
+                    st.info(f"**Selected Loan Details:**\n\n"
+                           f"• **Member:** {loan_data.get('member_fname')} {loan_data.get('member_lname')}\n\n"
+                           f"• **Book:** '{loan_data.get('title')}' by {loan_data.get('book_author_fname')} {loan_data.get('book_author_lname')}\n\n"
+                           f"• **Borrow Date:** {loan_data.get('borrow_date')}\n\n"
+                           f"• **Current Return Date:** {loan_data.get('return_date') if loan_data.get('return_date') else 'Not Returned Yet'}")
+                    
+                    # Return date input
+                    upd_return_date = st.date_input(
+                        "Set Return Date:",
+                        value=pd.to_datetime(loan_data['return_date']).date() if 'return_date' in loan_data and pd.notna(loan_data['return_date']) else date.today(),
+                        key="upd_loan_return_date"
+                    )
+                    
+                    update_loan_submit = st.form_submit_button("Update Loan Return Date")
+                    
+                    if update_loan_submit:
+                        if upd_return_date:
+                            success, message = update_loan_return_date(selected_loan_id, upd_return_date)
+                            if success:
+                                st.success(message)
+                                st.session_state.loan_update_data = {}
+                                st.rerun()
+                            else:
+                                st.error(message)
+                        else:
+                            st.error("Please provide a return date.")
+                    
+                    # Email Reminder Button
+                    if loan_data and loan_data.get('email'):
+                        member_name = f"{loan_data.get('member_fname', '')} {loan_data.get('member_lname', '')}".strip()
+                        member_email = loan_data.get('email', '')
+                        book_title = loan_data.get('title', '')
+                        borrow_date_str = loan_data.get('borrow_date', 'N/A').strftime('%Y-%m-%d') if pd.notna(loan_data.get('borrow_date')) else 'N/A'
+                        loan_id = loan_data.get('loanid', 'N/A')
+
+                        email_subject = urllib.parse.quote(f"Library Loan Reminder: '{book_title}' (Loan ID: {loan_id})")
+                        email_body = urllib.parse.quote(
+                            f"Hi {member_name},\n\n"
+                            f"This is a friendly reminder about the book you loaned from Liana's Library.\n\n"
+                            f"Book Title: '{book_title}'\n"
+                            f"Loan Date: {borrow_date_str}\n"
+                            f"Loan ID: {loan_id}\n\n"
+                            f"Please ensure you return the book on time. If you have any questions, please contact us.\n\n"
+                            f"Thank you,\nLiana's Library Team"
+                        )
+                        mailto_link = f"mailto:{member_email}?subject={email_subject}&body={email_body}"
+
+                        st.markdown(f"<a href='{mailto_link}' target='_blank'><button style='background-color:#007bff;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;'>Send Email Reminder</button></a>", unsafe_allow_html=True)
+    else:
+        st.info("No active loans found. All books have been returned!")
+
+    st.markdown("---")
+
+    # Delete Loan Section
+    st.subheader("Delete Loan")
+    with st.form("delete_loan_form", clear_on_submit=True):
+        loan_id_to_delete = st.number_input("Enter Loan ID to Delete:", min_value=1, format="%d", key="delete_loan_id_input")
+        delete_loan_submit = st.form_submit_button("Delete Loan")
+        if delete_loan_submit and loan_id_to_delete:
+            success, message = delete_loan(loan_id_to_delete)
+            if success:
+                st.success(message)
+            else:
+                st.error(message)
+
+    st.markdown("---")
+
+    # Bulk Upload Loans
+    st.subheader("Bulk Upload Loans (CSV)")
+    uploaded_loans_file = st.file_uploader("Upload CSV file for Loans", type=["csv"], key="upload_loans_csv")
+    if uploaded_loans_file:
+        try:
+            loans_df_upload = pd.read_csv(uploaded_loans_file)
+            st.write("Preview of uploaded data:")
+            st.dataframe(loans_df_upload.head())
+            if st.button("Process Bulk Loan Upload", key="process_bulk_loans"):
+                results = bulk_insert_loans_from_df(loans_df_upload)
+                for res in results:
+                    if "Error" in res:
+                        st.error(res)
+                    else:
+                        st.success(res)
+                st.success("Bulk loan upload process completed.")
+        except Exception as e:
+            st.error(f"Error reading CSV: {e}")
+
+st.markdown("---")
+st.markdown("Use this page to add, update, or delete records in your library database.")
