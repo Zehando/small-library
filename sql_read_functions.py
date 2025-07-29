@@ -3,12 +3,13 @@
 import pandas as pd
 from sqlalchemy import text
 from sql_con import get_engine # Use get_engine function
+import streamlit as st # Import streamlit to use st.error for database connection issues
 
 # --- Helper function for executing queries and returning DataFrame ---
 def _execute_query_to_dataframe(query_str, params=None):
     engine = get_engine()
     if engine is None:
-        st.error("Database connection not established.")
+        st.error("Database connection not established. Please check sql_con.py and your secrets.")
         return pd.DataFrame()
     try:
         with engine.connect() as connection:
@@ -109,4 +110,3 @@ def get_available_books():
     WHERE L.loanid IS NULL;
     """
     return _execute_query_to_dataframe(query)
-
