@@ -2,111 +2,191 @@
 
 import pandas as pd
 from sqlalchemy import text
-from sql_con import get_engine # Use get_engine function
-import streamlit as st # Import streamlit to use st.error for database connection issues
+from sql_con import engine # Assuming sql_con.py provides the SQLAlchemy engine
 
-# --- Helper function for executing queries and returning DataFrame ---
-def _execute_query_to_dataframe(query_str, params=None):
-    engine = get_engine()
-    if engine is None:
-        st.error("Database connection not established. Please check sql_con.py and your secrets.")
-        return pd.DataFrame()
+# Function to fetch all members from the Members table
+def get_all_members():
+    """
+    Fetches all records from the members table and returns them as a Pandas DataFrame.
+    Adjusted for PostgreSQL's default lowercase table names.
+    """
     try:
         with engine.connect() as connection:
-            result_proxy = connection.execute(text(query_str), params if params else {})
-            column_names = result_proxy.keys()
-            data = result_proxy.fetchall()
-            return pd.DataFrame(data, columns=column_names)
+            # Execute a SQL query to select all data from the members table (lowercase)
+            result = connection.execute(text("SELECT * FROM members;"))
+            # Fetch all rows from the result
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
     except Exception as e:
-        st.error(f"Error executing query: {e}")
-        return pd.DataFrame()
+        print(f"Error fetching members: {e}")
+        return pd.DataFrame() # Return an empty DataFrame on error
 
-# --- Read Functions ---
-
-def get_all_members():
-    """Retrieves all members from the members table."""
-    query = "SELECT * FROM members;"
-    return _execute_query_to_dataframe(query)
-
+# Function to fetch all books from the Books table
 def get_all_books():
-    """Retrieves all books from the books table."""
-    query = "SELECT * FROM books;"
-    return _execute_query_to_dataframe(query)
+    """
+    Fetches all records from the books table and returns them as a Pandas DataFrame.
+    Adjusted for PostgreSQL's default lowercase table names.
+    """
+    try:
+        with engine.connect() as connection:
+            # Execute a SQL query to select all data from the books table (lowercase)
+            result = connection.execute(text("SELECT * FROM books;"))
+            # Fetch all rows from the result
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching books: {e}")
+        return pd.DataFrame() # Return an empty DataFrame on error
 
+# Function to fetch all loans from the Loans table
 def get_all_loans():
     """
-    Retrieves all loans with associated member and book details.
-    Adjusted for PostgreSQL's default lowercase table and column names.
+    Fetches all records from the loans table and returns them as a Pandas DataFrame.
+    Adjusted for PostgreSQL's default lowercase table names.
     """
-    query = """
-    SELECT
-        L.loanid,
-        L.memberid,
-        M.member_fname,
-        M.member_lname,
-        L.isbn,
-        B.title,
-        B.author_fname,
-        B.author_lname,
-        L.borrow_date,
-        L.return_date
-    FROM loans AS L
-    JOIN members AS M ON L.memberid = M.memberid
-    JOIN books AS B ON L.isbn = B.isbn
-    ORDER BY L.loanid DESC;
-    """
-    return _execute_query_to_dataframe(query)
+    try:
+        with engine.connect() as connection:
+            # Execute a SQL query to select all data from the loans table (lowercase)
+            result = connection.execute(text("SELECT * FROM loans;"))
+            # Fetch all rows from the result
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching loans: {e}")
+        return pd.DataFrame() # Return an empty DataFrame on error
 
+# Function to get active loans with book and member details
 def get_active_loans_details():
     """
-    Retrieves details of all active loans (where return_date is NULL)
-    including member and book information.
+    Fetches details of active loans (where return_date is NULL)
+    including member and book information, and returns them as a Pandas DataFrame.
     Adjusted for PostgreSQL's default lowercase table and column names.
     """
-    query = """
-    SELECT
-        L.loanid,
-        L.memberid,
-        M.member_fname,
-        M.member_lname,
-        L.isbn,
-        B.title,
-        B.author_fname,
-        B.author_lname,
-        L.borrow_date,
-        L.return_date
-    FROM loans AS L
-    JOIN members AS M ON L.memberid = M.memberid
-    JOIN books AS B ON L.isbn = B.isbn
-    WHERE L.return_date IS NULL
-    ORDER BY L.borrow_date ASC;
-    """
-    return _execute_query_to_dataframe(query)
+    try:
+        with engine.connect() as connection:
+            query = text("""
+                SELECT
+                    L.loanid,
+                    M.member_fname,
+                    M.member_lname,
+                    B.title,
+                    B.author_fname,
+                    B.author_lname,
+                    L.borrow_date,
+                    M.email -- Added email for consistency with p2_datainput loan email reminder
+                FROM
+                    loans AS L
+                JOIN
+                    members AS M ON L.memberid = M.memberid
+                JOIN
+                    books AS B ON L.isbn = B.isbn
+                WHERE
+                    L.return_date IS NULL;
+            """)
+            result = connection.execute(query)
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching active loan details: {e}")
+        return pd.DataFrame()
 
-def search_books(search_term):
+# Function to get all loans with book and member details
+def get_all_loans_details():
     """
-    Searches for books by title or author (first or last name).
+    Fetches details of all loans including member and book information,
+    and returns them as a Pandas DataFrame.
     Adjusted for PostgreSQL's default lowercase table and column names.
     """
-    search_term_lower = f"%{search_term.lower()}%" # Case-insensitive search
-    query = """
-    SELECT * FROM books
-    WHERE LOWER(title) LIKE :search_term
-    OR LOWER(author_fname) LIKE :search_term
-    OR LOWER(author_lname) LIKE :search_term;
-    """
-    return _execute_query_to_dataframe(query, {'search_term': search_term_lower})
+    try:
+        with engine.connect() as connection:
+            query = text("""
+                SELECT
+                    L.loanid,
+                    M.member_fname,
+                    M.member_lname,
+                    B.title,
+                    B.author_fname,
+                    B.author_lname,
+                    L.borrow_date,
+                    L.return_date,
+                    M.email -- Added email for consistency with p2_datainput loan email reminder
+                FROM
+                    loans AS L
+                JOIN
+                    members AS M ON L.memberid = M.memberid
+                JOIN
+                    books AS B ON L.isbn = B.isbn;
+            """)
+            result = connection.execute(query)
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching all loan details: {e}")
+        return pd.DataFrame()
 
+# NEW FUNCTION: Get available books (not currently on loan)
 def get_available_books():
     """
-    Retrieves books that are currently available for loan.
-    A book is available if it's not currently associated with an active loan (return_date IS NULL).
+    Fetches books that are not currently on loan (i.e., not present in the loans table
+    with a NULL return_date) and returns them as a Pandas DataFrame.
     Adjusted for PostgreSQL's default lowercase table and column names.
     """
-    query = """
-    SELECT B.*
-    FROM books AS B
-    LEFT JOIN loans AS L ON B.isbn = L.isbn AND L.return_date IS NULL
-    WHERE L.loanid IS NULL;
+    try:
+        with engine.connect() as connection:
+            query = text("""
+                SELECT
+                    B.isbn,
+                    B.title,
+                    B.author_fname,
+                    B.author_lname,
+                    B.publisher,
+                    B.publication_year,
+                    B.genre
+                FROM
+                    books AS B
+                LEFT JOIN
+                    loans AS L ON B.isbn = L.isbn AND L.return_date IS NULL
+                WHERE
+                    L.isbn IS NULL;
+            """)
+            result = connection.execute(query)
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching available books: {e}")
+        return pd.DataFrame()
+
+# NEW FUNCTION: Search books by title or author
+def search_books(query_text):
     """
-    return _execute_query_to_dataframe(query)
+    Searches for books by matching the query_text against title, author_fname, or author_lname.
+    Returns matching books as a Pandas DataFrame.
+    Adjusted for PostgreSQL's default lowercase table and column names.
+    """
+    try:
+        with engine.connect() as connection:
+            # Using LIKE for partial matches and parameters to prevent SQL injection
+            sql_query = text(f"""
+                SELECT
+                    isbn,
+                    title,
+                    author_fname,
+                    author_lname,
+                    publisher,
+                    publication_year,
+                    genre
+                FROM
+                    books
+                WHERE
+                    title LIKE :query OR
+                    author_fname LIKE :query OR
+                    author_lname LIKE :query;
+            """)
+            # Add wildcards to the query text for LIKE operator
+            params = {'query': f"%{query_text}%"}
+            result = connection.execute(sql_query, params)
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error searching books: {e}")
+        return pd.DataFrame()
