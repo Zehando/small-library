@@ -56,6 +56,12 @@ def display_data_with_controls(df, title, key_prefix, col_map):
         df_display = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
 
         max_rows = len(df_display)
+        
+        # Ensure max_rows is at least 1 to avoid slider error
+        if max_rows < 1:
+            st.info(f"No {title.lower()} found.")
+            return
+            
         num_rows_to_show = st.slider(
             "Number of rows to display:",
             min_value=1,
@@ -63,9 +69,6 @@ def display_data_with_controls(df, title, key_prefix, col_map):
             value=min(10, max_rows), # Default to 10 rows or max available
             key=f"{key_prefix}_slider"
         )
-
-        # Removed sorting options (sort_column and sort_order)
-        # Removed email reminder button logic (manual table construction)
 
         # Apply row limit
         df_display = df_display.head(num_rows_to_show)
@@ -82,47 +85,58 @@ tab_active_loans, tab_all_members, tab_all_books, tab_all_loan_history = st.tabs
 
 # --- Active Loans Tab ---
 with tab_active_loans:
-    active_loans_df = get_active_loans_details()
-    display_data_with_controls(active_loans_df, "Current Active Loans", "active_loans", LOAN_COL_MAP)
+    try:
+        active_loans_df = get_active_loans_details()
+        display_data_with_controls(active_loans_df, "Current Active Loans", "active_loans", LOAN_COL_MAP)
+    except Exception as e:
+        st.error(f"Error loading active loans: {e}")
 
 # --- All Members Tab ---
 with tab_all_members:
-    members_df = get_all_members()
-    display_data_with_controls(members_df, "All Library Members", "all_members", MEMBER_COL_MAP)
+    try:
+        members_df = get_all_members()
+        display_data_with_controls(members_df, "All Library Members", "all_members", MEMBER_COL_MAP)
+    except Exception as e:
+        st.error(f"Error loading members: {e}")
 
 # --- All Books Tab ---
 with tab_all_books:
-    books_df = get_all_books()
-    display_data_with_controls(books_df, "All Books in the Library", "all_books", BOOK_COL_MAP)
+    try:
+        books_df = get_all_books()
+        display_data_with_controls(books_df, "All Books in the Library", "all_books", BOOK_COL_MAP)
 
-    st.markdown("---")
+        st.markdown("---")
 
-    # --- Conditional NEW SECTIONS: Available Books and Search Books (appear only within "All Books" tab) ---
-    st.header("📖 Available Books")
-    available_books_df = get_available_books()
-    if not available_books_df.empty:
-        st.dataframe(available_books_df.rename(columns={k: v for k, v in BOOK_COL_MAP.items() if k in available_books_df.columns}), use_container_width=True)
-    else:
-        st.info("No books currently available for loan.")
-
-    st.markdown("---")
-
-    st.header("🔍 Search Books by Title or Author")
-    search_query_books_section = st.text_input("Enter book title or author to search:", key="book_search_input_overview")
-    if search_query_books_section:
-        searched_books_df = search_books(search_query_books_section)
-        if not searched_books_df.empty:
-            st.dataframe(searched_books_df.rename(columns={k: v for k, v in BOOK_COL_MAP.items() if k in searched_books_df.columns}), use_container_width=True)
+        # --- Conditional NEW SECTIONS: Available Books and Search Books (appear only within "All Books" tab) ---
+        st.header("📖 Available Books")
+        available_books_df = get_available_books()
+        if not available_books_df.empty:
+            st.dataframe(available_books_df.rename(columns={k: v for k, v in BOOK_COL_MAP.items() if k in available_books_df.columns}), use_container_width=True)
         else:
-            st.warning(f"No books found matching '{search_query_books_section}'.")
-    else:
-        st.info("Enter a search query to find books.")
+            st.info("No books currently available for loan.")
 
+        st.markdown("---")
+
+        st.header("🔍 Search Books by Title or Author")
+        search_query_books_section = st.text_input("Enter book title or author to search:", key="book_search_input_overview")
+        if search_query_books_section:
+            searched_books_df = search_books(search_query_books_section)
+            if not searched_books_df.empty:
+                st.dataframe(searched_books_df.rename(columns={k: v for k, v in BOOK_COL_MAP.items() if k in searched_books_df.columns}), use_container_width=True)
+            else:
+                st.warning(f"No books found matching '{search_query_books_section}'.")
+        else:
+            st.info("Enter a search query to find books.")
+    except Exception as e:
+        st.error(f"Error loading books: {e}")
 
 # --- All Loan History Tab ---
 with tab_all_loan_history:
-    all_loans_df = get_all_loans_details()
-    display_data_with_controls(all_loans_df, "All Loan History", "all_loans", LOAN_COL_MAP)
+    try:
+        all_loans_df = get_all_loans_details()
+        display_data_with_controls(all_loans_df, "All Loan History", "all_loans", LOAN_COL_MAP)
+    except Exception as e:
+        st.error(f"Error loading loan history: {e}")
 
 st.markdown("---")
 st.markdown("Feel free to navigate to the 'Data Input' page to add or manage data!")
