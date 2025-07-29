@@ -11,7 +11,7 @@ st.markdown("---")
 # --- Column Name Mappings for User-Friendly Display ---
 MEMBER_COL_MAP = {
     'MemberID': 'Member ID',
-    'Member_FName': 'First Name',
+    'member_fname': 'First Name',
     'Member_LName': 'Last Name',
     'Signup_Date': 'Signup Date',
     'Address': 'Address',
