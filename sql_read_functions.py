@@ -190,3 +190,42 @@ def search_books(query_text):
     except Exception as e:
         print(f"Error searching books: {e}")
         return pd.DataFrame()
+
+# NEW FUNCTION: Get active loans for dropdown selection
+def get_active_loans_for_dropdown():
+    """
+    Fetches active loans with member and book details formatted for dropdown selection.
+    Returns a DataFrame with loan details for UI dropdown.
+    Adjusted for PostgreSQL's default lowercase table and column names.
+    """
+    try:
+        with engine.connect() as connection:
+            query = text("""
+                SELECT
+                    L.loanid,
+                    L.memberid,
+                    L.isbn,
+                    L.borrow_date,
+                    L.return_date,
+                    M.member_fname,
+                    M.member_lname,
+                    M.email,
+                    B.title,
+                    B.author_fname,
+                    B.author_lname
+                FROM
+                    loans AS L
+                JOIN
+                    members AS M ON L.memberid = M.memberid
+                JOIN
+                    books AS B ON L.isbn = B.isbn
+                WHERE
+                    L.return_date IS NULL
+                ORDER BY L.borrow_date DESC;
+            """)
+            result = connection.execute(query)
+            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+            return df
+    except Exception as e:
+        print(f"Error fetching active loans for dropdown: {e}")
+        return pd.DataFrame()
