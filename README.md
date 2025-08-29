@@ -1,5 +1,8 @@
 # 📚 Liana's Library Management System
 
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white) ![SQL](https://img.shields.io/badge/SQL-336791?style=for-the-badge&logo=postgresql&logoColor=white) ![Cloud](https://img.shields.io/badge/Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
+
+
 A **Streamlit web application** for managing a small library's operations including members, books, and loans. Provides a user-friendly interface for CRUD operations, searching, and bulk data management.
 
 [Library Link](https://small-library-liana.streamlit.app/)
